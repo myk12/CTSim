@@ -1,0 +1,26 @@
+@startuml
+box Sender #cceeff
+actor  AppS
+participant  MultiConnS
+end box
+box Receiver #ffcccc
+participant  MultiConnR
+actor  AppR
+end box
+
+AppS -> MultiConnS : Send()
+MultiConnS -> MultiConnS : Split & Schedule Data
+activate MultiConnS
+deactivate MultiConnS
+loop for each path
+MultiConnS ->(10) MultiConnR : PathSend()
+MultiConnR ->(10) MultiConnS : ACK
+end loop
+
+MultiConnR -> MultiConnR : Reassemble Data
+activate MultiConnR
+deactivate MultiConnR
+MultiConnR -> AppR : NotifyData()
+AppR -> MultiConnR: Recv()
+
+@enduml

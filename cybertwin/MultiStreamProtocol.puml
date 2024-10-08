@@ -1,0 +1,35 @@
+@startuml
+hide footbox
+skinparam monochrome true
+skinparam style strictuml
+skinparam defaultFontName Consolas
+box "Client" 
+participant "SManager" as sm
+participant "Stream1" as s1
+participant "Stream2" as s2
+end box
+box "Server"
+participant "Peer" as p
+end box
+
+sm -> p: connect
+activate sm
+activate p
+p -> sm
+sm -> s1: create
+activate s1
+sm -> s2: create
+activate s2
+s1 -> p: connect
+s2 -> p: connect
+p -> s1
+s1 -> sm
+sm -> sm: addStream
+s1 -> p: send
+p -> s2
+s2 -> sm
+sm -> sm: addStream
+
+s2 -> p: send
+
+@enduml

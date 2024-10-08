@@ -1,0 +1,45 @@
+@startuml
+
+skinparam classAttributeIconSize 0
+skinparam BackgroundColor #eeebdc
+
+actor "Client" as client #lightblue
+actor "Server" as server #DarkRed
+== TCP SYN ==
+note left of client
+Send multiple SYN packets
+end note
+client ->(10) server : TCP SYN - 1
+client ->(10) server : ...
+client ->(10) server : TCP SYN - n
+
+note left of client
+k success, n-k fail
+end note
+server ->(10) client : TCP SYN, ACK * k
+server ->(10) client : TCP RST, * (n - k)
+
+== First Path ==
+
+client -> client : Generate Connection,\n Sender Key
+activate client
+note left of client
+Build first path
+Init connection
+end note
+client -> server : Sender Key
+deactivate client
+activate server
+server -> server : Generate Connection,\n Receiver Key
+server -> client : Receiver Key, Connection ID
+deactivate server
+
+== Subsequent Path ==
+loop for each path
+client ->(10) server: Connection ID, Sender Key
+server -> server: aggregate path\n to connection
+server ->(10) client: Connection ID, Receiver Key
+client -> client: aggregate path\n to connection
+end
+
+@enduml

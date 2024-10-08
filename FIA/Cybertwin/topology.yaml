@@ -1,0 +1,157 @@
+# Define the Network Topology of the Cybertwin Network
+# This Netowrk comprises of 3 layers: Access, Edge and Core
+
+cybertwin_network:
+  # Core Layer
+  # The Core Layer is the backbone of the network and is responsible for routing traffic between different parts of the network.
+
+  core_layer:
+    description: Core Layer of the Cybertwin Network
+    nodes:
+      - name: core_node1
+        type: host_server
+        connections:
+          - target: core_node2
+            data_rate: 10Gbps
+            delay: 10ms
+
+          - target: core_node3
+            data_rate: 10Gbps
+            delay: 10ms
+    
+      - name: core_node2
+        type: host_server
+        connections:
+          - target: core_node3
+            data_rate: 10Gbps
+            delay: 10ms
+
+          - target: core_node4
+            data_rate: 10Gbps
+            delay: 10ms
+
+      - name: core_node3
+        type: host_server
+        connections:
+          - target: core_node4
+            data_rate: 10Gbps
+            delay: 10ms
+          
+          - target: core_node1
+            data_rate: 10Gbps
+            delay: 10ms
+      
+      - name: core_node4
+        type: host_server
+        connections:
+          - target: core_node1
+            data_rate: 10Gbps
+            delay: 10ms
+
+          - target: core_node2
+            data_rate: 10Gbps
+            delay: 10ms
+
+  # Edge Layer
+  # The Edge Layer is responsible for routing traffic between the Access Layer and the Core Layer.
+
+  edge_layer:
+    description: Edge Layer of the Cybertwin Network
+    nodes:
+      - name: edge_node1
+        type: host_server
+        connections:
+          - target: core_node1
+            data_rate: 1Gbps
+            delay: 20ms
+
+      - name: edge_node2
+        type: host_server
+        connections:
+          - target: core_node1
+            data_rate: 1Gbps
+            delay: 20ms
+      
+      - name: edge_node3
+        type: host_server
+        connections:
+          - target: core_node2
+            data_rate: 1Gbps
+            delay: 20ms
+
+      - name: edge_node4
+        type: host_server
+        connections:
+          - target: core_node2
+            data_rate: 1Gbps
+            delay: 20ms
+      
+      - name: edge_node5
+        type: host_server
+        connections:
+          - target: core_node3
+            data_rate: 1Gbps
+            delay: 20ms
+      
+      - name: edge_node6
+        type: host_server
+        connections:
+          - target: core_node3
+            data_rate: 1Gbps
+            delay: 20ms
+      
+      - name: edge_node7
+        type: host_server
+        connections:
+          - target: core_node4
+            data_rate: 1Gbps
+            delay: 20ms
+
+      - name: edge_node8
+        type: host_server
+        connections:
+          - target: core_node4
+            data_rate: 1Gbps
+            delay: 20ms
+      
+  # Access Layer
+  # The Access Layer is responsible for connecting end devices to the network.
+
+  access_layer:
+    description: Access Layer of the Cybertwin Network
+    nodes:
+      - name: access_net1
+        type: end_cluster
+        num_nodes: 4
+        network_type: ethernet
+        gateways:
+          - target: edge_node1
+            data_rate: 100Mbps
+            delay: 20ms
+      
+      - name: access_net2
+        type: end_cluster
+        num_nodes: 4
+        network_type: ethernet
+        gateways:
+          - target: edge_node2
+            data_rate: 100Mbps
+            delay: 20ms
+      
+      - name: access_net3
+        type: end_cluster
+        num_nodes: 4
+        network_type: ethernet
+        gateways:
+          - target: edge_node3
+            data_rate: 100Mbps
+            delay: 20ms
+      
+      - name: access_net4
+        type: end_cluster
+        num_nodes: 4
+        network_type: ethernet
+        gateways:
+          - target: edge_node4
+            data_rate: 100Mbps
+            delay: 20ms

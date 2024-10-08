@@ -1,0 +1,33 @@
+@startuml
+skinparam BackgroundColor #EEEBDC
+skinparam Handwritten false
+
+participant "CNRS" as CNRS
+actor "Client" as C #99eeff
+actor "Server" as S #DarkRed
+== Cybertwin Name Resolution ==
+C -> CNRS : Query CUID
+activate CNRS
+CNRS -> CNRS : Recursively search
+CNRS -> C : Return Interfaces
+deactivate CNRS
+
+== Establish Connection ==
+C -> S : Connect
+activate S
+S -> S : Fork MPConn
+deactivate S
+S -> C : ACK
+
+== Data Transmission ==
+C -> S : Send()
+S -> C : ACK
+S -> C : Send()
+C -> S : ACK
+
+== Close Connection ==
+
+C -> S : Close()
+S -> C : ACK
+
+@enduml
