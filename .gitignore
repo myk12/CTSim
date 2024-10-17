@@ -50,6 +50,10 @@ cmake-build-minsizerel/
 cmake-build-release/
 
 .vs/
+.DS_Store
+.clang-format
+.clang-tidy
+.editorconfig
 
 # Ignore local cache used by e.g. clangd
 .cache/
