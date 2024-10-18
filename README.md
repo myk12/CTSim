@@ -52,27 +52,52 @@ pip install -r requirements.txt
 
 2. Configure 
 
-```bash
-./ctsim configure
-```
+    ```bash
+    ./ctsim configure
+    ```
 
 3. Compile the network:
 
-```bash
-./ctsim build
-```
+    ```bash
+    ./ctsim build
+    ```
 
 4. Run the simulation:
 
-```bash
-./ctsim run
-```
+    ```bash
+    ./ctsim run
+    ```
 
 5. Analyze the results:
 
-```bash
-./ctsim analyze
-```
+    ```bash
+    ./ctsim analyze
+    ```
+
+### Visiualization
+
+1. Install NetAnim
+
+2. Open the `cybertwin.xml` with NetAnim
+    ```bash
+    ./netanim cybertwin.xml
+    ```
+3. Analyze the results with NetAnim
+
+    NetAnim is a standalone, Qt5-based software executable that uses a trace file generated during an ns-3 simulation to display the topology and animate the packet flow between nodes.
+
+    1) animate the network topology
+
+    ![animator](doc/animator.png)
+
+    2) detailed information of nodes
+    
+    ![node](doc/stats.png)
+
+    3) packet flow between nodes
+
+    ![flow](doc/packets.png)
+
 
 ## Build Network
 
@@ -146,7 +171,37 @@ Users can define their own network topologies by modifying the network topology 
 Applications are defined in a YAML file. The following is an example of an applications file:
 
 ```yaml
+# Define the Applications that run on the Cybertwin Network
+# We describe each nodes of their applications and their properties
 
+# Applications
+applications:
+  - name: download-client
+    description: Download Client Application
+    type: download-client
+    enabled: true
+    start_delay: 0
+    target_nodes:
+      - access_net1_0
+      - access_net1_1
+    parameters:
+      - start-delay: 0
+        target-cybertwin-id: 1000
+
+    ...
+
+  - name: download-server
+    description: Download Server Application
+    type: download-server
+    enabled: true
+    start_delay: 0
+    target_nodes:
+      - core_node1
+    parameters:
+      - start-delay: 0
+        cybertwin-id: 1000
+        cybertwin-port: 1000
+        max-size: 100MB
 ```
 
 ### System Configuration
