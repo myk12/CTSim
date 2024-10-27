@@ -33,7 +33,7 @@ Additionally, it introduces a novel cloud network operating system and cloud ope
 Key concepts of the Cybertwin network include infrastructure, the Cybertwin based communication model, the cloud network operating system, and the cloud operator. 
 For more details, see [[1](#ref1)].
 
-![overview](doc/overview.jpg)
+![overview](doc/Overview.jpg)
 
 To facilitate the research and development of the Cybertwin network, we have developed this network simulator called **CTSim**. 
 CTSim is an open-source network simulator dedicated to the Cybertwin network, based on [NS-3](https://www.nsnam.org). 
