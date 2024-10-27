@@ -11,7 +11,8 @@
 #include <string>
 #include <unordered_map>
 #include <utility>
-#include <openssl/sha.h>
+#include <functional>
+#include <cstdint>
 
 namespace ns3
 {

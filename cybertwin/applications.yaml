@@ -1,0 +1,43 @@
+# Define the Applications that run on the Cybertwin Network
+# We describe each nodes of their applications and their properties
+
+# Applications
+applications:
+  - name: download-client
+    description: Download Client Application
+    type: download-client
+    enabled: true
+    start_delay: 2
+    target_nodes:
+      - access_net1_1
+      - access_net2_2
+      - access_net3_3
+      - access_net4_3
+    parameters:
+      - start-delay: 2
+        target-cybertwin-id: 1000
+
+  - name: bulk-sender
+    description: Bulk Sender Application
+    type: bulk-sender
+    enabled: true
+    start_delay: 0
+    target_nodes:
+      - access_net1_0
+      - access_net1_1
+    parameters:
+      - start-delay: 0
+        target-cybertwin-id: 2000
+
+  - name: download-server
+    description: Download Server Application
+    type: download-server
+    enabled: true
+    start_delay: 1
+    target_nodes:
+      - core_node3
+    parameters:
+      - start-delay: 1
+        cybertwin-id: 1000
+        cybertwin-port: 1000
+        max-size: 100KB

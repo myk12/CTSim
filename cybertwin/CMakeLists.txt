@@ -1,18 +1,19 @@
-set(target_prefix cybertwin)
-set(source_files
-    main.cc
-    CybertwinSim.cc)
+set(cybertwin_target_prefix "cybertwin")
+set(cybertwin_target_name "cybertwin")
 
-set(header_files
-    CybertwinSim.h)
-
-build_exec(
-    EXECNAME "cybertwin"
-    EXECNAME_PREFIX target_prefix
-    SOURCE_FILES ${source_files}
-    HEADER_FILES ${header_files}
-    LIBRARIES_TO_LINK "${ns3-libs}"
-    EXECUTABLE_DIRECTORY_PATH "cybertwinexec/"
+set(cybertwin_source_files
+    "simulator.cc"
 )
 
+set(cybertwin_heders
+    "simulator.h"
+)
 
+build_exec(
+    EXECNAME ${cybertwin_target_name}
+    EXECNAME_PREFIX ${cybertwin_target_prefix}
+    SOURCE_FILES ${cybertwin_source_files}
+    LIBRARIES_TO_LINK "${ns3-libs}"
+                        yaml-cpp::yaml-cpp
+    EXECUTABLE_DIRECTORY_PATH "${cybertwin_target_prefix}/"
+)

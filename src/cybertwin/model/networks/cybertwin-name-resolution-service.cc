@@ -1,5 +1,6 @@
 #include "ns3/cybertwin-name-resolution-service.h"
 
+#include "ns3/cybertwin-node.h"
 #include "ns3/log.h"
 #include "ns3/random-variable-stream.h"
 
@@ -31,7 +32,7 @@ NameResolutionService::NameResolutionService(Ipv4Address super)
     : serviceSocket(nullptr),
       clientSocket(nullptr),
       m_port(NAME_RESOLUTION_SERVICE_PORT),
-      superior(super),
+      m_superior(super),
       databaseName("testdb")
 {
 }
@@ -45,8 +46,13 @@ NameResolutionService::~NameResolutionService()
 void
 NameResolutionService::StartApplication()
 {
-    NS_LOG_DEBUG("Init name resolution service.");
+    // Get Node Name
+    m_nodeName = DynamicCast<CybertwinNode>(GetNode())->GetName();
+    NS_LOG_INFO("[" << Simulator::Now().GetSeconds() << "(s)][" << m_nodeName
+                    << "][CNRS]: Start Name Resolution Service.");
+
     LoadDatabase();
+    InitSuperior();
     InitNameResolutionServer();
 }
 
@@ -54,20 +60,21 @@ void
 NameResolutionService::StopApplication()
 {
     // TODO: rememeber to save database.
-    NS_LOG_DEBUG("stop CNRS.");
+    NS_LOG_INFO("[" << Simulator::Now().GetSeconds() << "(s)][" << m_nodeName
+                    << "][CNRS]: Stop Name Resolution Service.");
 }
 
 void
 NameResolutionService::SetSuperior(Ipv4Address superior)
 {
-    this->superior = superior;
+    this->m_superior = superior;
 }
 
 void
 NameResolutionService::DefaultGetInterfaceCallback(CYBERTWINID_t id, CYBERTWIN_INTERFACE_LIST_t ifs)
 {
-    NS_LOG_DEBUG("CNRS: default get interface callback.");
-    NS_LOG_DEBUG("CNRS: id: " << id);
+    NS_LOG_DEBUG("[" << Simulator::Now().GetSeconds() << "(s)][" << m_nodeName
+                     << "][CNRS]: Get interface for " << id);
     for (auto it = ifs.begin(); it != ifs.end(); it++)
     {
         NS_LOG_DEBUG("CNRS: interface: " << *it);
@@ -84,6 +91,27 @@ NameResolutionService::LoadDatabase()
     }
 }
 
+void
+NameResolutionService::InitSuperior()
+{
+    NS_LOG_DEBUG("[" << Simulator::Now().GetSeconds() << "(s)][" << m_nodeName
+                     << "][CNRS]: Init superior server.");
+    Ptr<CybertwinNode> node = DynamicCast<CybertwinNode>(GetNode());
+    if (node->isCNRSRoot())
+    {
+        NS_LOG_DEBUG("[" << Simulator::Now().GetSeconds() << "(s)][" << m_nodeName
+                         << "][CNRS]: This is CNRS root.");
+        m_isCNRSRoot = true;
+    }
+    else
+    {
+        m_isCNRSRoot = false;
+        m_superior = node->GetUpperNodeAddress();
+        NS_LOG_DEBUG("[" << Simulator::Now().GetSeconds() << "(s)][" << m_nodeName
+                         << "][CNRS]: Set superior to " << m_superior);
+    }
+}
+
 /**
  * brief: init name resoltuion service
  */
@@ -91,17 +119,20 @@ void
 NameResolutionService::InitNameResolutionServer()
 {
     NS_LOG_FUNCTION(this);
-    NS_LOG_DEBUG("[CNRS] Init Name Resolution Service.");
+    NS_LOG_DEBUG("[" << Simulator::Now().GetSeconds() << "(s)][" << m_nodeName
+                     << "][CNRS]: Init Name Resolution Service.");
     if (!serviceSocket)
     {
-        serviceSocket = Socket::CreateSocket(GetNode(), TypeId::LookupByName("ns3::UdpSocketFactory"));
+        serviceSocket =
+            Socket::CreateSocket(GetNode(), TypeId::LookupByName("ns3::UdpSocketFactory"));
         InetSocketAddress local = InetSocketAddress(Ipv4Address::GetAny(), m_port);
 
         if (serviceSocket->Bind(local) == -1)
         {
             NS_FATAL_ERROR("Failed to bind socket");
         }
-        NS_LOG_DEBUG("[CNRS]: Serve at " << local.GetIpv4() << ":" << local.GetPort());
+        NS_LOG_DEBUG("[" << Simulator::Now().GetSeconds() << "(s)][" << m_nodeName
+                         << "][CNRS]: Bind to " << local.GetIpv4() << ":" << local.GetPort());
     }
 
     serviceSocket->SetRecvCallback(MakeCallback(&NameResolutionService::ServiceRecvHandler, this));
@@ -111,7 +142,7 @@ int32_t
 NameResolutionService::InitClientUDPSocket()
 {
     NS_LOG_DEBUG("InitClientUDPSocket.");
-    if (!superior.IsInitialized())
+    if (!m_superior.IsInitialized())
     {
         clientSocket = nullptr;
         return -1;
@@ -121,13 +152,14 @@ NameResolutionService::InitClientUDPSocket()
     {
         NS_LOG_DEBUG("Init client UDP socket.");
         int ret = 0;
-        clientSocket = Socket::CreateSocket(GetNode(), TypeId::LookupByName("ns3::UdpSocketFactory"));
+        clientSocket =
+            Socket::CreateSocket(GetNode(), TypeId::LookupByName("ns3::UdpSocketFactory"));
         if (clientSocket->Bind() < 0)
         {
             NS_FATAL_ERROR("Failed to bind socket.");
             return -2;
         }
-        ret = clientSocket->Connect(InetSocketAddress(superior, NAME_RESOLUTION_SERVICE_PORT));
+        ret = clientSocket->Connect(InetSocketAddress(m_superior, NAME_RESOLUTION_SERVICE_PORT));
         if (ret < 0)
         {
             NS_LOG_DEBUG("Failed to connect superior server.");
@@ -183,7 +215,8 @@ NameResolutionService::QueryResponseHandler(bool queryOk, CNRSHeader& rcvHeader)
     CYBERTWIN_INTERFACE_LIST_t interfaces;
     if (queryOk)
     {
-        NS_LOG_DEBUG("Get query result: {Cuid: " << id << ", QueryId: " << qId << ", InterfaceNum: " << rcvHeader.GetInterfaceList().size() <<"}");
+        NS_LOG_DEBUG("Get query result: {Cuid: " << id << ", QueryId: " << qId << ", InterfaceNum: "
+                                                 << rcvHeader.GetInterfaceList().size() << "}");
         interfaces = rcvHeader.GetInterfaceList();
         // insert to local
         itemCache[id] = interfaces;
@@ -200,7 +233,7 @@ NameResolutionService::QueryResponseHandler(bool queryOk, CNRSHeader& rcvHeader)
         // query from local
         NS_LOG_DEBUG("Query from local, callback.");
         m_queryCache[qId](id, interfaces);
-        //delete cache
+        // delete cache
         m_queryCache.erase(qId);
     }
     else
@@ -246,15 +279,15 @@ NameResolutionService::ServiceRecvHandler(Ptr<Socket> socket)
 }
 
 void
-NameResolutionService::ProcessQuery(CNRSHeader& rcvHeader, Ptr<Socket> socket, Address &from)
+NameResolutionService::ProcessQuery(CNRSHeader& rcvHeader, Ptr<Socket> socket, Address& from)
 {
     NS_LOG_FUNCTION(this << rcvHeader);
     // TODO: packet check
     CYBERTWINID_t id = rcvHeader.GetCuid();
     QUERY_ID_t qId = rcvHeader.GetQueryId();
-    NS_LOG_DEBUG("[CRNS][Query] Query from "<< InetSocketAddress::ConvertFrom(from).GetIpv4()
-                                            << ":" << InetSocketAddress::ConvertFrom(from).GetPort()
-                                            << " for " << id);
+    NS_LOG_DEBUG("[CRNS][Query] Query from "
+                 << InetSocketAddress::ConvertFrom(from).GetIpv4() << ":"
+                 << InetSocketAddress::ConvertFrom(from).GetPort() << " for " << id);
 
     if (itemCache.find(id) != itemCache.end())
     { // case1: query cybertwinID locally hit
@@ -312,12 +345,15 @@ NameResolutionService::QueryResponse(PeerInfo_t peerInfo,
     rspPacket->AddHeader(rspHeader);
     peerInfo.first->SendTo(rspPacket, 0, peerInfo.second);
 
-    //delete record
+    // delete record
     m_queryClientCache.erase(qid);
 }
 
 void
-NameResolutionService::InformCNRSResult(CYBERTWINID_t id, QUERY_ID_t qId, Ptr<Socket> socket, Address &from)
+NameResolutionService::InformCNRSResult(CYBERTWINID_t id,
+                                        QUERY_ID_t qId,
+                                        Ptr<Socket> socket,
+                                        Address& from)
 {
     NS_LOG_FUNCTION(this << id);
     NS_LOG_DEBUG("Query response OK.");
@@ -340,15 +376,17 @@ NameResolutionService::QuerySuperior(CYBERTWINID_t id, QUERY_ID_t qId)
 {
     NS_LOG_FUNCTION(this << id);
     // case1: no superior (root)
-    if (!superior.IsInitialized())
+    if (!m_superior.IsInitialized())
     {
-        NS_LOG_DEBUG("CNRS: no superior.");
+        NS_LOG_DEBUG("[" << Simulator::Now().GetSeconds() << "(s)][" << m_nodeName
+                         << "][CNRS]: No superior.");
         QuerySuperiorFail(id, qId);
         return -1;
     }
 
     // case2: has superior
-    NS_LOG_DEBUG("[CNRS] query superior : " << superior);
+    NS_LOG_DEBUG("[" << Simulator::Now().GetSeconds() << "(s)][" << m_nodeName
+                     << "][CNRS]: Query superior.");
     Ptr<Packet> packet = Create<Packet>();
 
     CNRSHeader header;
@@ -364,15 +402,20 @@ NameResolutionService::QuerySuperior(CYBERTWINID_t id, QUERY_ID_t qId)
 
     Address peerAddr;
     clientSocket->GetPeerName(peerAddr);
-    NS_LOG_DEBUG("peerAddr: " << InetSocketAddress::ConvertFrom(peerAddr).GetIpv4() << " peerPort: " << InetSocketAddress::ConvertFrom(peerAddr).GetPort());
+    NS_LOG_DEBUG("[" << Simulator::Now().GetSeconds() << "(s)][" << m_nodeName
+                     << "][CNRS]: Send query packet to "
+                     << InetSocketAddress::ConvertFrom(peerAddr).GetIpv4() << ":"
+                     << InetSocketAddress::ConvertFrom(peerAddr).GetPort());
 
     int32_t ret = clientSocket->Send(packet);
     if (ret <= 0)
     {
-        NS_LOG_DEBUG("CNRS: send query packet to superior fail : " << ret);
+        NS_LOG_DEBUG("[" << Simulator::Now().GetSeconds() << "(s)][" << m_nodeName
+                         << "][CNRS]: Send query packet fail.");
         return -2;
     }
-    NS_LOG_DEBUG("[CNRS] send query packet to superior.");
+    NS_LOG_DEBUG("[" << Simulator::Now().GetSeconds() << "(s)][" << m_nodeName
+                     << "][CNRS]: Send query packet success.");
     return 0;
 }
 
@@ -417,10 +460,12 @@ NameResolutionService::ProcessInsert(CNRSHeader& rcvHeader, Ptr<Socket> socket)
 void
 NameResolutionService::ReportName2Superior(CYBERTWINID_t id, CYBERTWIN_INTERFACE_LIST_t interfaces)
 {
-    NS_LOG_DEBUG("Report new item two superior.");
+    NS_LOG_DEBUG("[" << Simulator::Now().GetSeconds() << "(s)][" << m_nodeName
+                     << "][CNRS]: Report new item to superior.");
     if (InitClientUDPSocket() < 0)
     {
-        NS_LOG_DEBUG("CNRS: Invaild superior.");
+        NS_LOG_DEBUG("[" << Simulator::Now().GetSeconds() << "(s)][" << m_nodeName
+                         << "][CNRS]: Report new item to superior fail.");
         return;
     }
 
@@ -449,16 +494,19 @@ NameResolutionService::GetCybertwinInterfaceByName(
     CYBERTWINID_t name,
     Callback<void, CYBERTWINID_t, CYBERTWIN_INTERFACE_LIST_t> callback)
 {
-    NS_LOG_DEBUG("[CRNS] Resolve Cybertwin name : " << name);
+    NS_LOG_DEBUG("[" << Simulator::Now().GetSeconds() << "(s)][" << m_nodeName
+                     << "][CNRS]: Get Cybertwin Interface by Name.");
     if (itemCache.find(name) != itemCache.end())
     {
         // find in cache
-        NS_LOG_DEBUG(this << "CNRS: find in local.");
+        NS_LOG_DEBUG("[" << Simulator::Now().GetSeconds() << "(s)][" << m_nodeName
+                         << "][CNRS]: find in local.");
         callback(name, itemCache[name]);
     }
     else
     {
-        NS_LOG_DEBUG(this << "CNRS: not find in local. Query from superior.");
+        NS_LOG_DEBUG("[" << Simulator::Now().GetSeconds() << "(s)][" << m_nodeName
+                         << "][CNRS]: not find in local. Query from superior.");
         // query from superior
         QUERY_ID_t qId = GetQueryID();
         m_queryCache[qId] = callback;
@@ -476,6 +524,8 @@ int32_t
 NameResolutionService::InsertCybertwinInterfaceName(CYBERTWINID_t name,
                                                     CYBERTWIN_INTERFACE_LIST_t& interfaces)
 {
+    NS_LOG_DEBUG("[" << Simulator::Now().GetSeconds() << "(s)][" << m_nodeName
+                     << "][CNRS]: Insert Cybertwin Interface Name.");
     NS_LOG_DEBUG("-------------[CNRS Insert]----------------");
     NS_LOG_DEBUG("| CNRS: Insert Cybertwin Interface name.");
     NS_LOG_DEBUG("| CNRS: name: " << name);
@@ -489,17 +539,21 @@ NameResolutionService::InsertCybertwinInterfaceName(CYBERTWINID_t name,
     // to prevent circle, check if already exist
     if (itemCache.find(name) != itemCache.end() && itemCache[name] == interfaces)
     {
-        NS_LOG_DEBUG("CNRS: item already exist.");
+        NS_LOG_DEBUG("[" << Simulator::Now().GetSeconds() << "(s)][" << m_nodeName
+                         << "][CNRS]: Insert Cybertwin Interface Name: already exist.");
         return 0;
     }
 
     itemCache[name] = interfaces;
-    // report to superior
-    Simulator::Schedule(TimeStep(1),
-                        &NameResolutionService::ReportName2Superior,
-                        this,
-                        name,
-                        interfaces);
+
+    // if not root, report to superior
+    if (!m_isCNRSRoot)
+    {
+        NS_LOG_DEBUG("[" << Simulator::Now().GetSeconds() << "(s)][" << m_nodeName
+                         << "][CNRS]: Insert Cybertwin Interface Name: report to superior.");
+        Simulator::ScheduleNow(&NameResolutionService::ReportName2Superior, this, name, interfaces);
+    }
+
     return 0;
 }
 

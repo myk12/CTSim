@@ -10,6 +10,7 @@
 namespace ns3
 {
 typedef std::pair<Ptr<Socket>, Address> PeerInfo_t;
+
 class NameResolutionService : public Application
 {
   public:
@@ -30,7 +31,7 @@ class NameResolutionService : public Application
      * @return int32_t 0: success, -1: fail
      */
     int32_t GetCybertwinInterfaceByName(CYBERTWINID_t name,
-                                        Callback<void,CYBERTWINID_t, CYBERTWIN_INTERFACE_LIST_t>);
+                                        Callback<void, CYBERTWINID_t, CYBERTWIN_INTERFACE_LIST_t>);
     int32_t InsertCybertwinInterfaceName(CYBERTWINID_t name, CYBERTWIN_INTERFACE_LIST_t& interface);
 
   private:
@@ -39,12 +40,13 @@ class NameResolutionService : public Application
 
     void LoadDatabase();
     void InitNameResolutionServer();
+    void InitSuperior();
     int32_t InitClientUDPSocket();
 
     void ServiceRecvHandler(Ptr<Socket> socket);
     void ClientRecvHandler(Ptr<Socket> socket);
 
-    void ProcessQuery(CNRSHeader& rcvHeader, Ptr<Socket> socekt, Address &from);
+    void ProcessQuery(CNRSHeader& rcvHeader, Ptr<Socket> socekt, Address& from);
     void QueryResponseHandler(bool status, CNRSHeader& rcvHeader);
     void ProcessInsert(CNRSHeader& rcvHeader, Ptr<Socket> socket);
     void ReportName2Superior(CYBERTWINID_t id, CYBERTWIN_INTERFACE_LIST_t interfaces);
@@ -53,15 +55,15 @@ class NameResolutionService : public Application
 
     /**
      * @brief query superior for cybertwin interface
-     * 
+     *
      * @param id cybertwin id
      * @param qid query id
-     * 
-    */
+     *
+     */
     int32_t QuerySuperior(CYBERTWINID_t id, QUERY_ID_t qid);
     void QueryResponseCallback(CYBERTWINID_t, QUERY_ID_t, CYBERTWIN_INTERFACE_LIST_t);
     void QuerySuperiorFail(CYBERTWINID_t id, QUERY_ID_t qid);
-    //void QuerySuperiorSuccess(QUERY_ID qid, CYBERTWIN_INTERFACE_LIST_t interfaces);
+    // void QuerySuperiorSuccess(QUERY_ID qid, CYBERTWIN_INTERFACE_LIST_t interfaces);
     void QueryResponse(PeerInfo_t peerInfo, CYBERTWINID_t, QUERY_ID_t, CYBERTWIN_INTERFACE_LIST_t);
 
     QUERY_ID_t GetQueryID();
@@ -69,13 +71,18 @@ class NameResolutionService : public Application
     Ptr<Socket> serviceSocket;
     Ptr<Socket> clientSocket;
     uint16_t m_port;
-    Ipv4Address superior;
+    Ipv4Address m_superior;
     std::string databaseName;
     std::unordered_map<CYBERTWINID_t, CYBERTWIN_INTERFACE_LIST_t> itemCache;
 
-    std::unordered_map<QUERY_ID_t, Callback<void, CYBERTWINID_t, CYBERTWIN_INTERFACE_LIST_t>> m_queryCache;
-    std::unordered_map<QUERY_ID_t, PeerInfo_t> m_queryClientCache; 
+    std::unordered_map<QUERY_ID_t, Callback<void, CYBERTWINID_t, CYBERTWIN_INTERFACE_LIST_t>>
+        m_queryCache;
+    std::unordered_map<QUERY_ID_t, PeerInfo_t> m_queryClientCache;
     Ptr<UniformRandomVariable> m_rand;
+
+    std::string m_nodeName;
+    
+    bool m_isCNRSRoot;
 };
 } // namespace ns3
 

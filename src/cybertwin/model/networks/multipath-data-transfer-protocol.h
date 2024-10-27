@@ -3,7 +3,7 @@
 #include "../cybertwin-common.h"
 #include "../cybertwin-header.h"
 #include "../cybertwin-tag.h"
-#include "../devices/cybertwin-node.h"
+#include "ns3/cybertwin-node.h"
 #include "ns3/log.h"
 #include "ns3/random-variable-stream.h"
 #include <unordered_map>

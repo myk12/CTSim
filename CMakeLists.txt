@@ -148,8 +148,8 @@ add_subdirectory(src)
 # Build test utils
 add_subdirectory(utils)
 
-# Build Cyebrtwin Networks Simulation
-add_subdirectory(Cybertwin)
+# Add cybertwin
+add_subdirectory(cybertwin)
 
 # Build json
 add_subdirectory(thirdparty/json)

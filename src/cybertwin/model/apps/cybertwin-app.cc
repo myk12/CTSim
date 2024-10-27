@@ -52,8 +52,8 @@ CybertwinApp::OpenLogFile(std::string logDir, std::string logFile)
     m_logStream.open(logPath, std::ios::app);
     if (!m_logStream.is_open())
     {
-        NS_LOG_ERROR("Failed to open log file: " << logPath);
-        exit(1);
+        // create a new file
+        m_logStream.open("log.txt", std::ios::app);
     }
     m_logStream << "Time\t"
                 << "Message" << std::endl;

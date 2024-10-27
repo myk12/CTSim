@@ -71,17 +71,12 @@ void NotifyCybertwinConfiguration()
 
 uint64_t StringToUint64(std::string str)
 {
-    unsigned char hash[SHA256_DIGEST_LENGTH];
-    SHA256_CTX sha256;
-    SHA256_Init(&sha256);
-    SHA256_Update(&sha256, str.c_str(), str.size());
-    SHA256_Final(hash, &sha256);
-    uint64_t ret = 0;
-    for (int i = 0; i < 8; i++)
-    {
-        ret += hash[i];
-        ret <<= 8;
-    }
+    // Use C++ standard library hash function
+    std::hash<std::string> hash_fn;
+    size_t hash_val = hash_fn(str);
+
+    // take the first 8 bytes of the hash value
+    uint64_t ret = static_cast<uint64_t>(hash_val);
     return ret;
 }
 
