@@ -33,7 +33,7 @@ Additionally, it introduces a novel cloud network operating system and cloud ope
 Key concepts of the Cybertwin network include infrastructure, the Cybertwin based communication model, the cloud network operating system, and the cloud operator. 
 For more details, see [[1](#ref1)].
 
-![overview](doc/overview.png)
+![overview](doc/overview.jpg)
 
 To facilitate the research and development of the Cybertwin network, we have developed this network simulator called **CTSim**. 
 CTSim is an open-source network simulator dedicated to the Cybertwin network, based on [NS-3](https://www.nsnam.org). 
@@ -315,7 +315,7 @@ The Cybertwin Name Resolution Service (CNRS) is a service that maps Cybertwin ID
 
 ### ID-aware Routing
 
-![ID-aware routing](doc/IDRouting.png)
+![ID-aware routing](doc/IDRouting.jpg)
 
 We have developed an ID-aware Routing mechanism where routing devices consider both the destination network address and the destination ID during route lookups. Each network entity is assigned a unique identifier, which is added to the network layer alongside the IP address. When a router receives a data packet for routing, it checks if there have been updates to the network address associated with the packet's destination ID. If changes are detected, routing prioritizes the updated network address, ensuring packets reach the correct destination even if network addresses change due to mobility. This ID-aware routing approach facilitates seamless mobility support within the network architecture.
 
@@ -323,7 +323,7 @@ We have developed an ID-aware Routing mechanism where routing devices consider b
 
 Advancements in communication technology have introduced various network access methods for devices, such as Ethernet, WiFi, and cellular networks (4G, 5G). As a result, modern devices often feature multiple network interfaces; for instance, mobile devices can connect via both WiFi and cellular networks, while laptops may have Ethernet and WiFi adapters. Leveraging multiple network interfaces is crucial for improving end-to-end performance and reliability.
 
-![Multi-stream Fusion Protocol](doc/MultiStream.png)
+![Multi-stream Fusion Protocol](doc/MultiStream.jpg)
 
 We introduce the Multi-Stream Fusion Protocol (MSFP). This figure illustrates the position of MSFP within the transport layer, serving as a multi-stream management module. It oversees multiple substreams across various transport layer protocols and provides an application programming interface (API) similar to a standard socket to the upper layers (e.g. application layer).
 
@@ -332,7 +332,7 @@ We introduce the Multi-Stream Fusion Protocol (MSFP). This figure illustrates th
 
 The increasing reliance on digitization, the development of the Internet of Things (IoT), and the widespread adoption of big data and cloud computing, among other trends, have elevated networks to the status of societal infrastructure. The security of Internet is directly linked to the normal functioning of society, national security, and individual privacy. 
 
-![Security Enhancement Suite](doc/SecurityEnhance.png)
+![Security Enhancement Suite](doc/SecurityEnhance.jpg)
 
 Although the definition of the zero trust network architecture is relatively clear, there are many specific technical specifications. Among them, we take the zero trust network architecture deployment model~\cite{nist-zero-trust-architecture} released by the National Institute of Standards and Technology (NIST) in the United States as a reference. Using this as a blueprint, we designed and implemented the Security Enhancement Suite in FISim.
 
