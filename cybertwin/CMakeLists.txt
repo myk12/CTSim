@@ -1,4 +1,4 @@
-set(cybertwin_target_prefix "cybertwin")
+set(cybertwin_target_prefix "ctsim")
 set(cybertwin_target_name "cybertwin")
 
 set(cybertwin_source_files

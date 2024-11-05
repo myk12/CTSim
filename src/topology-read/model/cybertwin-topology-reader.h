@@ -60,16 +60,18 @@ typedef struct Gateway
 // define node info
 typedef struct NodeInfo
 {
-    Ptr<Node> node;
-    NodeContainer nodes;
-    std::string name;
-    NodeType_e type;
-    Vector position;
-    int32_t num_nodes;  // number of nodes in the cluster
-    std::string network_type;
-    std::string local_network; // only for end cluster
-    std::vector<Link_t> links;
-    std::vector<Gateway_t> gateways;
+    Ptr<Node> node;     // main node pointer
+    std::string name;   // main node name
+    Vector position;    // position in NetAnim
+    NodeType_e type;    // indicating whether the node is a host server or an end cluster
+    std::vector<Link_t> links;  // p2p links
+
+    // for CSMA or Wifi network
+    NodeContainer nodes;    // cluster nodes
+    int32_t num_nodes;      // number of nodes in the cluster
+    std::string network_type;   // indicating the network type: csma or wifi
+    std::vector<Gateway_t> gateways;    // gateways
+    std::string local_network;      // end cluster local area network
 } NodeInfo_t;
 
 //----------------------------------------------------------
