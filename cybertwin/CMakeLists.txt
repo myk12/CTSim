@@ -14,6 +14,6 @@ build_exec(
     EXECNAME_PREFIX ${cybertwin_target_prefix}
     SOURCE_FILES ${cybertwin_source_files}
     LIBRARIES_TO_LINK "${ns3-libs}"
-                        yaml-cpp::yaml-cpp
+                        yaml-cpp
     EXECUTABLE_DIRECTORY_PATH "${cybertwin_target_prefix}/"
 )

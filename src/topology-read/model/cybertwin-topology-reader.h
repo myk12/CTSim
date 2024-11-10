@@ -97,7 +97,7 @@ class CybertwinTopologyReader : public TopologyReader
     //----------------------------------------------------------
     //          Topology Construction
     //----------------------------------------------------------
-    NodeContainer Read();
+    NodeContainer Read() override;
 
     NodeInfo_t* CreateCloudNodeInfo(const YAML::Node &node);
     NodeInfo_t* CreateEndClusterNodeInfo(const YAML::Node &node);

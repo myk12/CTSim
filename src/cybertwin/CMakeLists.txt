@@ -1,7 +1,3 @@
-#find_external_library(
-#  DEPENDENCY_NAME openssl
-#  LIBRARY_NAME libcrypto.so
-#)
 
 build_lib(
     LIBNAME cybertwin
@@ -49,7 +45,9 @@ build_lib(
     LIBRARIES_TO_LINK ${libcore}
                         ${libapplications}
                         ${libinternet}
-                        "crypto.so"
+                        ${libwifi}
+                        ${libcsma}
+                        yaml-cpp
 
     TEST_SOURCES test/cybertwin-test-suite.cc
                  ${examples_as_tests_sources}

@@ -160,6 +160,7 @@ install(TARGETS nlohmann_json EXPORT ns3ExportTargets)
 
 # Build yaml-cpp
 add_subdirectory(thirdparty/yaml-cpp)
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/yaml-cpp/include/yaml-cpp DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}/build/include)
 install(TARGETS yaml-cpp EXPORT ns3ExportTargets)
 
 write_lock()

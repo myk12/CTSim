@@ -28,17 +28,18 @@ class CybertwinNetworkSimulator : public Object
     CybertwinNetworkSimulator(const CybertwinNetworkSimulator&) = delete;
     CybertwinNetworkSimulator& operator=(const CybertwinNetworkSimulator&) = delete;
 
+    void SetAnimationInterface(AnimationInterface* animInterface);
+
     void InputInit();
-    void DriverCompile();
-    void AnimationInit();
+    void DriverCompileTopology();
     void DriverInstallApps();
-    void DriverBoot();
+    void DriverBootSimulator();
     void RunSimulator();
     void Output();
 
   private:
     NodeContainer m_nodes;
-    Ptr<CybertwinTopologyReader> m_topologyReader;
+    CybertwinTopologyReader m_topologyReader;
     AnimationInterface* m_animInterface;
 };
 

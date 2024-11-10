@@ -14,8 +14,15 @@ build_lib(
     model/rocketfuel-topology-reader.h
     model/topology-reader.h
     model/cybertwin-topology-reader.h
-  LIBRARIES_TO_LINK ${libnetwork}
-                    yaml-cpp::yaml-cpp
+  LIBRARIES_TO_LINK ${libapplications}
+                    ${libnetwork}
+                    ${libcore}
+                    ${libinternet}
+                    ${libwifi}
+                    ${libcsma}
+                    ${libcybertwin}
+                    ${libnetanim}
+                    yaml-cpp
   TEST_SOURCES test/rocketfuel-topology-reader-test-suite.cc
 )
 
